@@ -359,18 +359,19 @@ M.attach = throttle_async({ hash = 1 }, function(cbuf, ctx, aucmd)
     return
   end
 
+  local manual_attach = aucmd == nil
   local is_untracked = git_obj.object_name == nil
 
-  -- Manual attaches (`:Gitsigns attach`) should still be allowed for
-  -- untracked buffers.
-  if aucmd and not config.attach_to_untracked and is_untracked then
+  -- Manual attaches (`:Gitsigns attach` or `attach()`) should still be allowed
+  -- for buffers skipped by auto-attach filters.
+  if not manual_attach and not config.attach_to_untracked and is_untracked then
     dprint('File is untracked')
     return
   end
 
   local relpath = git_obj.relpath --[[@as string]]
   local diff_attr = git_obj.repo:check_attr('diff', { relpath })[relpath]
-  if diff_attr == 'unset' then
+  if not manual_attach and diff_attr == 'unset' then
     dprint('File has -diff attribute')
     return
   end

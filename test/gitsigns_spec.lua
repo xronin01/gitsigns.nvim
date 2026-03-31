@@ -232,6 +232,52 @@ describe('gitsigns (with screen)', function()
       check({ status = { head = 'main' }, signs = {} })
     end)
 
+    it('can manually attach to nodiff files from the command line', function()
+      write_to_file(scratch .. '/.gitattributes', { '*.bar -diff' })
+
+      local nodiff_file = scratch .. '/dummy.bar'
+      write_to_file(nodiff_file, { 'dummy' })
+
+      git('add', scratch .. '/.gitattributes', nodiff_file)
+      git('commit', '-m', 'add nodiff file')
+
+      edit(nodiff_file)
+
+      match_debug_messages({
+        'attach.attach(1): Attaching (trigger=BufReadPost)',
+        np(revparse_pat),
+        np('attach%.attach%(1%): File has %-diff attribute'),
+      })
+
+      command('Gitsigns attach')
+
+      wait_for_attach()
+      check({ status = { head = 'main', added = 0, changed = 0, removed = 0 }, signs = {} })
+    end)
+
+    it('can manually attach to nodiff files via attach()', function()
+      write_to_file(scratch .. '/.gitattributes', { '*.bar -diff' })
+
+      local nodiff_file = scratch .. '/dummy.bar'
+      write_to_file(nodiff_file, { 'dummy' })
+
+      git('add', scratch .. '/.gitattributes', nodiff_file)
+      git('commit', '-m', 'add nodiff file')
+
+      edit(nodiff_file)
+
+      match_debug_messages({
+        'attach.attach(1): Attaching (trigger=BufReadPost)',
+        np(revparse_pat),
+        np('attach%.attach%(1%): File has %-diff attribute'),
+      })
+
+      exec_lua([[require('gitsigns').attach()]])
+
+      wait_for_attach()
+      check({ status = { head = 'main', added = 0, changed = 0, removed = 0 }, signs = {} })
+    end)
+
     it("doesn't attach to non-existent files", function()
       edit(newfile)
 
