@@ -46,7 +46,17 @@ describe('blame', function()
       true,
       exec_lua(function()
         return vim.wait(10000, function()
-          return vim.bo.filetype == 'gitsigns-blame'
+          if vim.bo.filetype ~= 'gitsigns-blame' then
+            return false
+          end
+
+          for _, map in ipairs(vim.api.nvim_buf_get_keymap(0, 'n')) do
+            if map.lhs == 'r' then
+              return true
+            end
+          end
+
+          return false
         end)
       end)
     )
