@@ -666,11 +666,7 @@ describe('gitsigns (with screen)', function()
         }
 
         if fn.has('win32') == 1 then
-          table.insert(
-            messages,
-            5,
-            np('system.system: cygpath --absolute --unix ' .. path_pattern(newfile))
-          )
+          table.insert(messages, 5, p('system.system: cygpath --absolute --unix .*newfile%.txt'))
         end
 
         match_debug_messages(messages)

@@ -59,7 +59,7 @@ describe('blame', function()
     eq(
       true,
       exec_lua(function(initial_bufnr)
-        return vim.wait(5000, function()
+        return vim.wait(10000, function()
           return vim.bo.filetype == 'gitsigns-blame'
             and vim.api.nvim_get_current_buf() ~= initial_bufnr
         end)

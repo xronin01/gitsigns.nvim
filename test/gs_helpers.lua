@@ -113,7 +113,17 @@ local test_file_text = {
 --- Run a git command
 --- @param ... string
 function M.git(...)
-  system({ 'git', '-C', M.scratch, ... })
+  local args = { ... } --- @type string[]
+  local scratch0 = assert(M.normalize_path(M.scratch))
+
+  for i, arg in ipairs(args) do
+    local normalized = M.normalize_path(arg)
+    if normalized and vim.startswith(normalized, scratch0 .. '/') then
+      args[i] = normalized:sub(#scratch0 + 2)
+    end
+  end
+
+  system(vim.list_extend({ 'git', '-C', M.scratch }, args))
 end
 
 function M.cleanup()
