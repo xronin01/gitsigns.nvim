@@ -666,7 +666,11 @@ describe('gitsigns (with screen)', function()
         }
 
         if fn.has('win32') == 1 then
-          table.insert(messages, 5, p('system.system: cygpath --absolute --unix .*newfile%.txt'))
+          table.insert(
+            messages,
+            5,
+            p(vim.pesc('system.system: cygpath --absolute --unix ') .. path_pattern(newfile))
+          )
         end
 
         match_debug_messages(messages)
