@@ -51,19 +51,27 @@ describe('blame', function()
       end)
     )
 
-    local initial_blame_bufnr = exec_lua('return vim.api.nvim_get_current_buf()')
+    local initial_blame_buf = exec_lua(function()
+      return {
+        bufnr = vim.api.nvim_get_current_buf(),
+        name = vim.api.nvim_buf_get_name(0),
+      }
+    end)
 
     feed('3G')
     feed('r')
 
     eq(
       true,
-      exec_lua(function(initial_bufnr)
+      exec_lua(function(initial_blame_buf0)
         return vim.wait(10000, function()
           return vim.bo.filetype == 'gitsigns-blame'
-            and vim.api.nvim_get_current_buf() ~= initial_bufnr
+            and (
+              vim.api.nvim_get_current_buf() ~= initial_blame_buf0.bufnr
+              or vim.api.nvim_buf_get_name(0) ~= initial_blame_buf0.name
+            )
         end)
-      end, initial_blame_bufnr)
+      end, initial_blame_buf)
     )
 
     eq({ 3, 0 }, helpers.api.nvim_win_get_cursor(0))

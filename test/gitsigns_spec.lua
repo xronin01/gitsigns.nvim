@@ -684,7 +684,10 @@ describe('gitsigns (with screen)', function()
         }
 
         if not internal_diff then
-          table.insert(messages, np('system.system: git .* diff .* /.* /.*'))
+          table.insert(
+            messages,
+            np(vim.pesc('system.system: git ') .. '.* diff .* .*[\\/].* .*[\\/].*')
+          )
         end
 
         match_debug_messages(messages)
