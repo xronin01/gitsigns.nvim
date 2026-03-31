@@ -79,7 +79,12 @@ describe('gitdir_watcher', function()
       np('system.system: git .* diff %-%-name%-status .* %-%-cached'),
       n('attach.handle_moved(1): File moved to dummy.txt2'),
       np('system.system: git .* ls%-files .* ' .. path_pattern(test_file2)),
-      np('attach%.handle_moved%(1%): Renamed buffer 1 from .*/dummy.txt to .*/dummy.txt2'),
+      np(
+        'attach%.handle_moved%(1%): Renamed buffer 1 from '
+          .. path_pattern(test_file)
+          .. ' to '
+          .. path_pattern(test_file2)
+      ),
       np('system.system: git .* show .*'),
     })
 
@@ -97,7 +102,12 @@ describe('gitdir_watcher', function()
       np('system.system: git .* diff %-%-name%-status .* %-%-cached'),
       n('attach.handle_moved(1): File moved to dummy.txt3'),
       np('system.system: git .* ls%-files .* ' .. path_pattern(test_file3)),
-      np('attach%.handle_moved%(1%): Renamed buffer 1 from .*/dummy.txt2 to .*/dummy.txt3'),
+      np(
+        'attach%.handle_moved%(1%): Renamed buffer 1 from '
+          .. path_pattern(test_file2)
+          .. ' to '
+          .. path_pattern(test_file3)
+      ),
       np('system.system: git .* show .*'),
     })
 
@@ -114,7 +124,12 @@ describe('gitdir_watcher', function()
       np('system.system: git .* ls%-files .* ' .. path_pattern(test_file)),
       n('attach.handle_moved(1): Moved file reset'),
       np('system.system: git .* ls%-files .* ' .. path_pattern(test_file)),
-      np('attach%.handle_moved%(1%): Renamed buffer 1 from .*/dummy.txt3 to .*/dummy.txt'),
+      np(
+        'attach%.handle_moved%(1%): Renamed buffer 1 from '
+          .. path_pattern(test_file3)
+          .. ' to '
+          .. path_pattern(test_file)
+      ),
       np('system.system: git .* show .*'),
     })
 

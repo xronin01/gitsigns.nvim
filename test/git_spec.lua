@@ -11,47 +11,6 @@ local write_to_file = helpers.write_to_file
 
 helpers.env()
 
---- @param fn function
---- @param name string
---- @return integer, any
-local function find_upvalue(fn, name)
-  local i = 1
-  while true do
-    local upname, value = debug.getupvalue(fn, i)
-    if not upname then
-      error(('missing upvalue: %s'):format(name), 2)
-    end
-    if upname == name then
-      return i, value
-    end
-    i = i + 1
-  end
-end
-
---- @param fn function
---- @param replacements table<string, any>
---- @param cb fun()
-local function with_upvalues(fn, replacements, cb)
-  local original = {} --- @type {index: integer, value: any}[]
-
-  for name, value in pairs(replacements) do
-    local index, old_value = find_upvalue(fn, name)
-    original[#original + 1] = { index = index, value = old_value }
-    debug.setupvalue(fn, index, value)
-  end
-
-  local ok, err = xpcall(cb, debug.traceback)
-
-  for i = #original, 1, -1 do
-    local entry = original[i]
-    debug.setupvalue(fn, entry.index, entry.value)
-  end
-
-  if not ok then
-    error(err, 0)
-  end
-end
-
 describe('git', function()
   before_each(function()
     clear()
@@ -180,6 +139,47 @@ describe('git', function()
       local async = require('gitsigns.async')
       local Repo = require('gitsigns.git.repo')
 
+      --- @param fn function
+      --- @param name string
+      --- @return integer, any
+      local function find_upvalue(fn, name)
+        local i = 1
+        while true do
+          local upname, value = debug.getupvalue(fn, i)
+          if not upname then
+            error(('missing upvalue: %s'):format(name), 2)
+          end
+          if upname == name then
+            return i, value
+          end
+          i = i + 1
+        end
+      end
+
+      --- @param fn function
+      --- @param replacements table<string, any>
+      --- @param cb fun()
+      local function with_upvalues(fn, replacements, cb)
+        local original = {} --- @type {index: integer, value: any}[]
+
+        for name, value in pairs(replacements) do
+          local index, old_value = find_upvalue(fn, name)
+          original[#original + 1] = { index = index, value = old_value }
+          debug.setupvalue(fn, index, value)
+        end
+
+        local ok, err = xpcall(cb, debug.traceback)
+
+        for i = #original, 1, -1 do
+          local entry = original[i]
+          debug.setupvalue(fn, entry.index, entry.value)
+        end
+
+        if not ok then
+          error(err, 0)
+        end
+      end
+
       local gitdir = vim.fs.joinpath(root, '.git')
       local unix_root = vim.trim(vim.fn.system({ 'cygpath', '--absolute', '--unix', root }))
       local unix_gitdir = vim.trim(vim.fn.system({ 'cygpath', '--absolute', '--unix', gitdir }))
@@ -265,6 +265,47 @@ describe('git', function()
     local result = exec_lua(function(root)
       local async = require('gitsigns.async')
       local Repo = require('gitsigns.git.repo')
+
+      --- @param fn function
+      --- @param name string
+      --- @return integer, any
+      local function find_upvalue(fn, name)
+        local i = 1
+        while true do
+          local upname, value = debug.getupvalue(fn, i)
+          if not upname then
+            error(('missing upvalue: %s'):format(name), 2)
+          end
+          if upname == name then
+            return i, value
+          end
+          i = i + 1
+        end
+      end
+
+      --- @param fn function
+      --- @param replacements table<string, any>
+      --- @param cb fun()
+      local function with_upvalues(fn, replacements, cb)
+        local original = {} --- @type {index: integer, value: any}[]
+
+        for name, value in pairs(replacements) do
+          local index, old_value = find_upvalue(fn, name)
+          original[#original + 1] = { index = index, value = old_value }
+          debug.setupvalue(fn, index, value)
+        end
+
+        local ok, err = xpcall(cb, debug.traceback)
+
+        for i = #original, 1, -1 do
+          local entry = original[i]
+          debug.setupvalue(fn, entry.index, entry.value)
+        end
+
+        if not ok then
+          error(err, 0)
+        end
+      end
 
       local outside = vim.fn.tempname()
       assert(vim.fn.mkdir(outside, 'p') == 1)

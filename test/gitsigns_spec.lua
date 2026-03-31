@@ -207,7 +207,7 @@ describe('gitsigns (with screen)', function()
         'attach.attach(1): Attaching (trigger=BufReadPost)',
         np(revparse_pat),
         np('system.system: git .* config user.name'),
-        np('system.system: git .* ls%-files .*/dummy_ignored.txt'),
+        np('system.system: git .* ls%-files ' .. path_pattern(ignored_file)),
         n('attach.attach(1): Cannot resolve file in repo'),
       })
 
@@ -657,13 +657,23 @@ describe('gitsigns (with screen)', function()
       it('attaches to newly created files', function()
         setup_gitsigns(config)
         edit(newfile)
-        match_debug_messages({
+        local messages = {
           'attach.attach(1): Attaching (trigger=BufNewFile)',
           np(revparse_pat),
           np('system.system: git .* config user.name'),
           np('system.system: git .* ls%-files .*'),
           n('attach.attach(1): Cannot resolve file in repo'),
-        })
+        }
+
+        if fn.has('win32') == 1 then
+          table.insert(
+            messages,
+            5,
+            np('system.system: cygpath --absolute --unix ' .. path_pattern(newfile))
+          )
+        end
+
+        match_debug_messages(messages)
         command('write')
 
         local messages = {
@@ -884,11 +894,15 @@ describe('gitsigns (with screen)', function()
     helpers.exc_exec('vimgrep ben ' .. scratch .. '/*')
 
     if fn.has('nvim-0.12') > 0 then
+      local qf_path = scratch .. '/dummy.txt'
+      if fn.has('win32') == 1 then
+        qf_path = qf_path:gsub('/', '\\')
+      end
       screen:expect({
         messages = {
           {
             kind = '',
-            content = { { scratch .. '/dummy.txt' } },
+            content = { { qf_path } },
           },
           {
             kind = 'quickfix',

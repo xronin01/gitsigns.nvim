@@ -61,6 +61,10 @@ local function git_command(args, spec)
   local stdout_lines = vim.split(obj.stdout or '', '\n')
 
   if spec.text then
+    for i, line in ipairs(stdout_lines) do
+      stdout_lines[i] = line:gsub('\r$', '')
+    end
+
     -- If stdout ends with a newline, then remove the final empty string after
     -- the split
     if stdout_lines[#stdout_lines] == '' then
