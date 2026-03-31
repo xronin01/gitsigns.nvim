@@ -59,6 +59,14 @@ describe('blame', function()
     end)
 
     feed('3G')
+    eq(
+      true,
+      exec_lua(function()
+        return vim.wait(5000, function()
+          return vim.api.nvim_win_get_cursor(0)[1] == 3
+        end)
+      end)
+    )
     feed('r')
 
     eq(
