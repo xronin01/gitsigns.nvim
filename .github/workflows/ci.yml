@@ -36,7 +36,6 @@ jobs:
     timeout-minutes: 10
 
     strategy:
-
       # Nightly can often fail as it is a moving target so disable fail-fast so
       # we can always see if the over versions pass or not.
       fail-fast: false
@@ -61,15 +60,26 @@ jobs:
 
       - uses: leafo/gh-actions-luarocks@v4
 
-      - name: Download nvim-test
-        run: make nvim-test
-
       - name: Run Test
         run: make test
 
-  windows_smoke:
+  test_windows:
     runs-on: windows-latest
     timeout-minutes: 10
+
+    strategy:
+      # Nightly can often fail as it is a moving target so disable fail-fast so
+      # we can always see if the stable version passes or not.
+      fail-fast: false
+
+      matrix:
+        neovim_branch:
+          - 'v0.12.0'
+          - 'nightly'
+
+    env:
+      NVIM_TEST_VERSION: ${{ matrix.neovim_branch }}
+
     defaults:
       run:
         shell: msys2 {0}
@@ -85,15 +95,22 @@ jobs:
           update: true
           install: >-
             git
+            make
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-lua-luarocks
+            mingw-w64-ucrt-x86_64-lua51
             mingw-w64-ucrt-x86_64-neovim
 
       - name: Show Versions
         run: |
           git --version
+          lua -v
+          luarocks --version
+          make --version
           nvim --version | head -n 1
 
-      - name: Run Windows Smoke Tests
-        run: nvim --headless -u test/windows/init.lua -l test/windows/run.lua
+      - name: Run Test
+        run: make test
 
   format:
     runs-on: ubuntu-latest

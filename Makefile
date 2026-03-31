@@ -26,20 +26,22 @@ NVIM_TEST := deps/nvim-test
 
 .PHONY: nvim-test
 nvim-test: $(NVIM_TEST)
+	$(NVIM_TEST)/bin/nvim-test --init
 
 $(NVIM_TEST):
-	git clone --depth 1 --branch v1.3.0 https://github.com/lewis6991/nvim-test $@
-	$@/bin/nvim-test --init
+	git clone --filter=blob:none --branch v1.4.0 https://github.com/lewis6991/nvim-test $@
 
 ################################################################################
 # Testsuite
 ################################################################################
 
 FILTER ?= .*
+TEST_FILES ?= test
 
 .PHONY: test
-test: $(NVIM_TEST)
-	$(NVIM_TEST)/bin/nvim-test test \
+test: nvim-test
+	$(NVIM_TEST)/bin/nvim-test \
+		$(TEST_FILES) \
 		--lpath=$(PWD)/lua/?.lua \
 		--verbose \
 		--filter="$(FILTER)"
