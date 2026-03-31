@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.1](https://github.com/lewis6991/gitsigns.nvim/compare/v2.1.0...v2.1.1) (2026-03-31)
+
+
+### Bug Fixes
+
+* **ci:** use release-please PR outputs for update-doc ([1dec70b](https://github.com/lewis6991/gitsigns.nvim/commit/1dec70b3fda9a534ed45f45663e20e7eaa5ff67d))
+* **git:** normalize command output ([8a796a4](https://github.com/lewis6991/gitsigns.nvim/commit/8a796a440fde3eeed3f33aecce9dab863b2be218))
+
 ## [2.1.0](https://github.com/lewis6991/gitsigns.nvim/compare/v2.0.0...v2.1.0) (2026-03-26)
 
 
